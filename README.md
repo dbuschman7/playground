@@ -5,6 +5,11 @@ Demonstration using Play!, Akka, AngularJS and Elasticsearch to perform real-tim
 
 Please see accompanying [blog article](http://www.dreweaster.com/blog/2013/07/08/reactive-real-time-log-search-with-play-akka-angularjs-and-elasticsearch/).
 
+DaVe : List of changes/additions
+	* Some actor cleanup where state is involved
+	* Isolate log generator code to allow it to be optional
+
+
 ## Licence
 
 This software is licensed under the Apache 2 license, quoted below.

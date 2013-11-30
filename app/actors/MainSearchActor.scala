@@ -1,7 +1,7 @@
 package actors
 
-import akka.actor.{Props, Actor}
-import play.api.libs.iteratee.{Concurrent}
+import akka.actor.{ Props, Actor }
+import play.api.libs.iteratee.{ Concurrent }
 import models._
 import scala.collection.mutable.HashMap
 import java.util.UUID
@@ -16,31 +16,21 @@ import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 
 /**
-  */
+ */
 class MainSearchActor extends Actor {
 
   var channels = new HashMap[UUID, Concurrent.Channel[JsValue]]
 
-  val elasticSearchActor = context.system.actorOf(Props[ElasticsearchActor], "elasticSearchActor")
-
-  val logEntryProducerActor = context.system.actorOf(Props[LogEntryProducerActor], "logEntryProducerActor")
-
-  val cancellable = context.system.scheduler.schedule(0 second, 1 second, self, Tick)
+  val elasticSearchActor = context.system.actorFor("/user/elasticSearch")
 
   def receive = {
     case startSearch: StartSearch => sender ! SearchFeed(startSearching(startSearch))
     case stopSearch: StopSearch => stopSearching(stopSearch)
     case searchMatch: SearchMatch => broadcastMatch(searchMatch)
-    case logEntry: LogEntry => elasticSearchActor ! logEntry
-    case Tick => logEntryProducerActor ! Tick
-  }
-
-  override def postStop() {
-    cancellable.cancel
-    super.postStop
   }
 
   private def broadcastMatch(searchMatch: SearchMatch) {
+    println("Broadcasting Match")
     searchMatch.matchingChannelIds.foreach {
       channels.get(_).map {
         _ push searchMatch.logEntry.data
@@ -59,12 +49,10 @@ class MainSearchActor extends Actor {
       },
       onError = (str, in) => {
         self ! StopSearch(startSearch.id)
-      }
-    ).onDoneEnumerating(
-      callback = {
-        self ! StopSearch(startSearch.id)
-      }
-    )
+      }).onDoneEnumerating(
+        callback = {
+          self ! StopSearch(startSearch.id)
+        })
 
   private def stopSearching(stopSearch: StopSearch) {
     channels -= stopSearch.id

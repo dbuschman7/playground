@@ -1,14 +1,17 @@
 package actors
 
-import akka.actor.{Actor}
+import akka.actor.{ Actor }
 import java.util.Random
 import play.api.libs.json.Json
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
-import models.{LogEntry, Tick}
+import models.{ LogEntry, Tick }
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext
+import ExecutionContext.Implicits.global
 
 /**
-  */
+ */
 class LogEntryProducerActor extends Actor {
 
   val timestampFormat = ISODateTimeFormat.dateTime()
@@ -23,8 +26,21 @@ class LogEntryProducerActor extends Actor {
 
   val statuses = Array(200, 404, 201, 500)
 
+  val searchStore = context.system.actorFor("/user/elasticSearch")
+
+  val cancellable = context.system.scheduler.schedule(0 second, 1 second, self, Tick)
+
   def receive = {
-    case Tick => sender ! LogEntry(generateLogEntry)
+    case Tick => searchStore ! LogEntry(generateLogEntry)
+  }
+
+  override def preStart() {
+    println("Log Generator Starting")
+
+  }
+  override def postStop() {
+    cancellable.cancel
+    super.postStop
   }
 
   private def generateLogEntry = {
@@ -35,8 +51,7 @@ class LogEntryProducerActor extends Actor {
       "path" -> randomElement(paths),
       "status" -> randomElement(statuses),
       "device" -> randomElement(devices),
-      "user_agent" -> randomElement(userAgents)
-    )
+      "user_agent" -> randomElement(userAgents))
   }
 
   private def randomElement[A](list: Array[A]) = {
