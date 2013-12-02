@@ -1,6 +1,6 @@
 package models
 
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.{ Json, JsValue }
 import java.util.UUID
 import play.api.libs.iteratee.Enumerator
 
@@ -17,3 +17,9 @@ case class SearchMatch(logEntry: LogEntry, matchingChannelIds: List[UUID])
 case class StartSearch(id: UUID = UUID.randomUUID(), searchString: String)
 
 case class StopSearch(id: UUID)
+
+case class ActionCounts(get: Int, put: Int, post: Int, delete: Int) {
+  def toJson: JsValue = {
+    Json.obj(("get", get), ("put", put), ("post", post), ("delete", delete))
+  }
+}

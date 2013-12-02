@@ -7,7 +7,14 @@ angular.module('realtimeSearch.controllers', []).
 
         $scope.addSearchResult = function (e) {
             $scope.$apply(function () {
-                $scope.searchResults.unshift(JSON.parse(e.data));
+            	var raw = JSON.parse(e.data);
+            	var target = raw.target;
+            	var data = raw.data;
+            	if (target == "searchResult") {
+            		$scope.searchResults.unshift(data);
+            	} else { 
+            		// 
+            	}
             });
         }
 

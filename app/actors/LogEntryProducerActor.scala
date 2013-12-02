@@ -28,10 +28,17 @@ class LogEntryProducerActor extends Actor {
 
   val searchStore = context.system.actorFor("/user/elasticSearch")
 
+  val actionCounts = context.system.actorFor("/user/actionCounts")
+
   val cancellable = context.system.scheduler.schedule(0 second, 1 second, self, Tick)
 
   def receive = {
-    case Tick => searchStore ! LogEntry(generateLogEntry)
+    case Tick => {
+      val entry = LogEntry(generateLogEntry)
+      searchStore ! entry
+      actionCounts ! entry
+
+    }
   }
 
   override def preStart() {

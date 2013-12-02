@@ -6,14 +6,18 @@ import models._
 import scala.collection.mutable.HashMap
 import java.util.UUID
 import play.api.libs.json.JsValue
-
 import scala.concurrent.duration._
 import models.StartSearch
 import models.SearchMatch
 import models.StopSearch
-
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsObject
+import scala.collection.immutable.Seq
+import scala.collection.Seq
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 
 /**
  */
@@ -26,15 +30,29 @@ class MainSearchActor extends Actor {
   def receive = {
     case startSearch: StartSearch => sender ! SearchFeed(startSearching(startSearch))
     case stopSearch: StopSearch => stopSearching(stopSearch)
-    case searchMatch: SearchMatch => broadcastMatch(searchMatch)
+    case searchMatch: SearchMatch => broadcastToClient(searchMatch)
+    case actionCounts: ActionCounts => broadcastToClient(actionCounts)
   }
 
-  private def broadcastMatch(searchMatch: SearchMatch) {
-    println("Broadcasting Match")
+  private def broadcastToClient(searchMatch: SearchMatch) {
+    println("Broadcasting SearchResult Match")
     searchMatch.matchingChannelIds.foreach {
       channels.get(_).map {
-        _ push searchMatch.logEntry.data
+        val data: JsValue = searchMatch.logEntry.data
+        val target: JsValue = Json.obj("target" -> "searchResult", "data" -> data)
+        println(s"JSValue = $target")
+        _ push target
       }
+    }
+  }
+
+  private def broadcastToClient(actionCounts: ActionCounts) {
+    println("Broadcasting ActionsCounts Match")
+    channels.values map { ch =>
+      val data: JsValue = actionCounts.toJson
+      val target: JsValue = Json.obj("target" -> "actionCounts", "data" -> data)
+      println(s"JSValue = $target")
+      ch push target
     }
   }
 
