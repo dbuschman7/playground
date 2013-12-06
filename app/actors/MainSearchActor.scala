@@ -31,28 +31,39 @@ class MainSearchActor extends Actor {
     case startSearch: StartSearch => sender ! SearchFeed(startSearching(startSearch))
     case stopSearch: StopSearch => stopSearching(stopSearch)
     case searchMatch: SearchMatch => broadcastToClient(searchMatch)
-    case actionCounts: ActionCounts => broadcastToClient(actionCounts)
+    case statistics: Statistics => broadcastToClient(statistics)
+    case tick: Tick => broadcastToClient(tick)
   }
 
+  // broadcast to all open channels
+  private def broadcastToClient(tick: Tick) {
+    // println("Broadcasting Server Tick")
+    channels.values map { ch =>
+      val data: JsValue = Json.obj("target" -> "serverTick", "data" -> tick.time)
+      // println(s"JSValue = $data")
+      ch push data
+    }
+  }
+
+  // send to the specific channels that want this data.
   private def broadcastToClient(searchMatch: SearchMatch) {
-    println("Broadcasting SearchResult Match")
+    // println("Broadcasting SearchResult Match")
     searchMatch.matchingChannelIds.foreach {
       channels.get(_).map {
-        val data: JsValue = searchMatch.logEntry.data
-        val target: JsValue = Json.obj("target" -> "searchResult", "data" -> data)
-        println(s"JSValue = $target")
-        _ push target
+        val data: JsValue = Json.obj("target" -> "searchResult", "data" -> searchMatch.logEntry.data)
+        // println(s"JSValue = $data")
+        _ push data
       }
     }
   }
 
-  private def broadcastToClient(actionCounts: ActionCounts) {
-    println("Broadcasting ActionsCounts Match")
+  // broascast to all open channels
+  private def broadcastToClient(statistics: Statistics) {
+    // println("Broadcasting Statistics Match")
     channels.values map { ch =>
-      val data: JsValue = actionCounts.toJson
-      val target: JsValue = Json.obj("target" -> "actionCounts", "data" -> data)
-      println(s"JSValue = $target")
-      ch push target
+      val data: JsValue = Json.obj("target" -> "statistics", "data" -> statistics.data)
+      // println(s"JSValue = $data")
+      ch push data
     }
   }
 

@@ -20,7 +20,7 @@ class ElasticsearchActor extends Actor {
   }
 
   private def percolate(logJson: JsValue, requestor: ActorRef) {
-    println(s"percolate called $logJson")
+    //    println(s"percolate called $logJson")
 
     WS.url("http://localhost:9200/logentries/logentry/_percolate").post(Json.stringify(Json.obj("doc" -> logJson))).map {
       response =>
@@ -36,13 +36,13 @@ class ElasticsearchActor extends Actor {
   }
 
   private def unregisterQuery(id: UUID) {
-    println("unregister query")
+    //    println("unregister query")
 
     WS.url("http://localhost:9200/_percolator/logentries/" + id.toString).delete
   }
 
   private def registerQuery(id: UUID, searchString: String) {
-    println("register query")
+    //    println("register query")
 
     val query = Json.obj(
       "query" -> Json.obj(

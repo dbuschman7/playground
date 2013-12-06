@@ -7,7 +7,7 @@ import akka.actor.Props
 import actors.LogEntryProducerActor
 import actors.ElasticsearchActor
 import actors.MainSearchActor
-import actors.ActionCountsActor
+import actors.StatisticsActor
 
 object Global extends GlobalSettings {
 
@@ -25,7 +25,7 @@ object Global extends GlobalSettings {
     Akka.system.actorOf(Props[LogEntryProducerActor], "logEntryProducerActor")
     Akka.system.actorOf(Props[ElasticsearchActor], "elasticSearch")
     Akka.system.actorOf(Props[MainSearchActor], "channelSearch")
-    Akka.system.actorOf(Props[ActionCountsActor], "actionCounts")
+    Akka.system.actorOf(Props[StatisticsActor], "statistics")
 
   }
 

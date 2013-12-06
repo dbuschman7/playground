@@ -9,12 +9,11 @@ import models.{ LogEntry, Tick }
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
+import models.CurrentTime
 
 /**
  */
 class LogEntryProducerActor extends Actor {
-
-  val timestampFormat = ISODateTimeFormat.dateTime()
 
   val devices = Array("Desktop", "Tablet", "Phone", "TV")
 
@@ -27,17 +26,19 @@ class LogEntryProducerActor extends Actor {
   val statuses = Array(200, 404, 201, 500)
 
   val searchStore = context.system.actorFor("/user/elasticSearch")
+  val actionCounts = context.system.actorFor("/user/statistics")
+  val mainSearch = context.system.actorFor("/user/channelSearch")
 
-  val actionCounts = context.system.actorFor("/user/actionCounts")
-
-  val cancellable = context.system.scheduler.schedule(0 second, 1 second, self, Tick)
+  val cancellable = context.system.scheduler.schedule(0 second, 1 second, self, CurrentTime.generateTick)
 
   def receive = {
-    case Tick => {
-      val entry = LogEntry(generateLogEntry)
+    case Tick(current) => {
+      //      println("Tick generated")
+      val currentTick = CurrentTime.generateTick;
+      val entry = LogEntry(generateLogEntry(currentTick.time))
       searchStore ! entry
       actionCounts ! entry
-
+      mainSearch ! currentTick;
     }
   }
 
@@ -50,9 +51,9 @@ class LogEntryProducerActor extends Actor {
     super.postStop
   }
 
-  private def generateLogEntry = {
+  private def generateLogEntry(current: String) = {
     Json.obj(
-      "timestamp" -> currentTimestamp,
+      "timestamp" -> current,
       "response_time" -> randomResponseTime,
       "method" -> randomElement(methods),
       "path" -> randomElement(paths),
@@ -69,5 +70,4 @@ class LogEntryProducerActor extends Actor {
 
   private def randomResponseTime = new Random(System.currentTimeMillis()).nextInt(1000)
 
-  private def currentTimestamp = timestampFormat.print(new DateTime(System.currentTimeMillis()))
 }

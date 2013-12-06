@@ -1,53 +1,230 @@
 @(title: String)
-
 <!DOCTYPE html>
 
 <html>
 <head>
-    <title>@title</title>
-    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-    <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
-    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+<title>@title</title>
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+<link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
+<link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
 
-    <script src="@routes.WebJarAssets.at(WebJarAssets.locate("angular.min.js"))"></script>
-    <script src="@routes.Assets.at("javascripts/controllers.js")"></script>
-    <script src="@routes.Assets.at("javascripts/app.js")"></script>
+<script src="@routes.WebJarAssets.at(WebJarAssets.locate("angular.min.js"))"></script>
+<script src="@routes.Assets.at("javascripts/controllers.js")"></script>
+<script src="@routes.Assets.at("javascripts/app.js")"></script>
+<script src="@routes.Assets.at("javascripts/d3.v3.min.js")"></script>
+
+<style type="text/css">
+td.left {
+	padding-left: 10px;
+}
+
+td.right {
+	padding-right: 10px;
+}
+
+.serverLabel {
+	margin: 3px;
+	font: 12px sans-serif;
+	color: black;
+}
+
+.serverData {
+	margin: 3px;
+	font: 12px sans-serif;
+	color: steelblue;
+}
+
+.serverTime {
+	margin: 10px;
+	font: 15px sans-serif;
+	margin-bottom: 10px;
+}
+
+.methodChart div {
+	font: 10px sans-serif;
+	background-color: steelblue;
+	text-align: right;
+	padding: 3px;
+	margin: 1px;
+	color: white;
+}
+
+.well table {
+	border: 1;
+	cellpadding: 10px;
+	width: 95% margin-right: 50px;
+}
+
+.left {
+	width: 35%;
+}
+
+.middleLeft {
+	width: 25%;
+}
+
+.middleRight {
+	width: 25%;
+}
+
+.right {
+	width: 25%;
+}
+
+.form-search {
+	margin-bottom: 10px;
+}
+
+#search {
+	margin-bottom: 10px;
+}
+
+.warning {
+	background-color: yellow;
+}
+
+.alert {
+	background-color: red;
+}
+
+</style>
+
 </head>
 <body ng-app="realtimeSearch">
 
-    <div ng-controller="SearchCtrl">
-        <div class="well" id="search">
-            <form class="form-search" ng-submit="startSearching()">
-                <input type="text" class="input-xlarge search-query" name="searchString" id="textField" ng-model="searchString" placeholder="Enter Lucene query string"/>
-                <input type="button" class="btn btn-primary" id="search" value="Search" ng-click="startSearching()" />
-            </form>
-        </div>
-        <div id="results">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Method</th>
-                        <th>Path</th>
-                        <th>Status</th>
-                        <th>Time (ms)</th>
-                        <th>Device</th>
-                        <th>User Agent</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="searchResult in searchResults | limitTo:10">
-                        <td>{{searchResult.timestamp}}</td>
-                        <td>{{searchResult.method}}</td>
-                        <td>{{searchResult.path}}</td>
-                        <td>{{searchResult.status}}</td>
-                        <td>{{searchResult.response_time}}</td>
-                        <td>{{searchResult.device}}</td>
-                        <td>{{searchResult.user_agent}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+	<div ng-controller="SearchCtrl">
+		<table class="well">
+			<tr>
+				<td width="35%" class="left">
+					<p class="serverTime">Server Time: {{serverTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</p>
+					<form class="form-search" ng-submit="startSearching()">
+						<input type="text" class="input-xlarge search-query" name="searchString" id="textField" ng-model="searchString"
+							placeholder="Enter Lucene query string" /> <input type="button" class="btn btn-primary" id="search" value="Search"
+							ng-click="startSearching()" />
+					</form>
+					<p class="serverLabel">
+						Requests : <span class="serverData">{{requests}}</span>
+					</p>
+					<p class="serverLabel">
+						ResponseTime(avg) : <span class="serverData">{{responseTime | number:2}}</span>
+					</p>
+				</td>
+				<td class="middleLeft">
+					<p class="serverLabel">
+						Chrome : <span class="serverData">{{chrome}}</span>
+					</p>
+					<p class="serverLabel">
+						Safari : <span class="serverData">{{safari}}</span>
+					</p>
+					<p class="serverLabel">
+						Firefox : <span class="serverData">{{firefox}}</span
+					</p>
+					<p class="serverLabel">
+						Other : <span class="serverData">{{other}}</span>
+					</p> <br />
+					<p class="serverLabel">
+						Desktop : <span class="serverData">{{desktop}}</span>
+					</p>
+					<p class="serverLabel">
+						Tablet : <span class="serverData">{{tablet}}</span>
+					</p>
+					<p class="serverLabel">
+						Phone : <span class="serverData">{{phone}}</span>
+					</p>
+					<p class="serverLabel">
+						Tv : <span class="serverData">{{tv}}</span>
+					</p>
+
+				</td>
+				<td class="middleRight"></td>
+				<td class="right"></td>
+			</tr>
+		</table>
+		<div id="results">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Timestamp</th>
+						<th>Method</th>
+						<th>Path</th>
+						<th>Status</th>
+						<th>Time (ms)</th>
+						<th>Device</th>
+						<th>User Agent</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="searchResult in searchResults | limitTo:10" >
+						<td>{{searchResult.timestamp}}</td>
+						<td>{{searchResult.method}}</td>
+						<td>{{searchResult.path}}</td>
+						<td>{{searchResult.status}}</td>
+						<td>{{searchResult.response_time}}</td>
+						<td>{{searchResult.device}}</td>
+						<td>{{searchResult.user_agent}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<a href="http://www.reactivemanifesto.org/"> <img style="border: 0; position: fixed; right: 0; top: 0; z-index: 9000"
+		src="@routes.Assets.at("/images/we-are-reactive-blue-right.png")">
+	</a>
 </body>
 </html>
+<script type="text/javascript">
+	function fitLabel(action, count) {
+		if (count == 0) {
+			return "";
+		}
+		return action + " " + count;
+	}
+
+	function generateLabel(d, i) {
+		switch (i) {
+		case 0:
+			return fitLabel("GET", d);
+		case 1:
+			return fitLabel("PUT", d);
+		case 2:
+			return fitLabel("POST ", d);
+		case 3:
+			return fitLabel("DELETE ", d);
+		default: {
+			return fitLabel("", d);
+		}
+		}
+	}
+
+	// initial empty scale
+	var xScale = d3.scale.linear().domain([ 0, 0 ]).range([ 0, 420 ]);
+
+	var methodChart = d3.select(".middleRight")//
+	.append("div").attr("class", "methodChart");
+	//
+	methodChart.selectAll("div")//
+	.data([ 0, 0, 0, 0 ]).enter()//
+	.append("div")//
+	.style("width", function(d) {
+		return xScale(d) + "px";
+	})//
+	.text(generateLabel)//
+	;
+
+	function redrawMethods(currentData) {
+		xScale = d3.scale.linear()//
+		.domain([ 0, d3.max(currentData) ])//
+		.range([ 0, 420 ]);
+
+		// Update…
+		methodChart.selectAll("div")//
+		.data(currentData)//
+		.transition().duration(600)//
+		.style("width", function(d) {
+			return xScale(d) + "px";
+		})//
+		.text(generateLabel)//
+		;
+	}
+</script>
