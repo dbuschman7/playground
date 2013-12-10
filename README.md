@@ -1,20 +1,23 @@
-Reactive, real-time log search with Play, Akka, AngularJS and Elasticsearch
+Reactive, real-time log search with Play, Akka, AngularJS, D3js and Elasticsearch
 ===========================================================================
 
-Demonstration using Play!, Akka, AngularJS and Elasticsearch to perform real-time log entry search.
+Demonstration using Play!, Akka, AngularJS, D3.js, and Elasticsearch to perform real-time log entry search.
 
-Please see accompanying [blog article](http://www.dreweaster.com/blog/2013/07/08/reactive-real-time-log-search-with-play-akka-angularjs-and-elasticsearch/).
+Please see the initial implementation discussion at [blog article](http://www.dreweaster.com/blog/2013/07/08/reactive-real-time-log-search-with-play-akka-angularjs-and-elasticsearch/).
+for the note on the base application I 
 
 DaVe : List of changes/additions
 	* Some actor cleanup where state is involved
 	* Isolate log generator code to allow it to be optional
-
-
+	* Added raw display of server fed data via Akka actors
+	* Added D3.js dynamic chart, updates fed from the server
+	* All data feed through 1 WebSocket connection with the server.
+	
 ## Licence
 
-This software is licensed under the Apache 2 license, quoted below.
+This software is licensed under the Apache 2 license, quoted below. DaVe. concurs
 
-Copyright &copy; 2013 **[Andrew Easter](http://www.dreweaster.com/)**.
+Copyright &copy; 2013 **[Andrew Easter](http://www.dreweaster.com/)**. DaVe. concurs
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this project except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 

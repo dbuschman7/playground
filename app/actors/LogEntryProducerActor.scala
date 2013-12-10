@@ -27,9 +27,6 @@ class LogEntryProducerActor extends Actor {
 
   val searchStore = context.system.actorFor("/user/elasticSearch")
   val actionCounts = context.system.actorFor("/user/statistics")
-  val mainSearch = context.system.actorFor("/user/channelSearch")
-
-  val cancellable = context.system.scheduler.schedule(0 second, 1 second, self, CurrentTime.generateTick)
 
   def receive = {
     case Tick(current) => {
@@ -38,17 +35,11 @@ class LogEntryProducerActor extends Actor {
       val entry = LogEntry(generateLogEntry(currentTick.time))
       searchStore ! entry
       actionCounts ! entry
-      mainSearch ! currentTick;
     }
   }
 
   override def preStart() {
     println("Log Generator Starting")
-
-  }
-  override def postStop() {
-    cancellable.cancel
-    super.postStop
   }
 
   private def generateLogEntry(current: String) = {

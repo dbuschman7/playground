@@ -8,6 +8,7 @@ import actors.LogEntryProducerActor
 import actors.ElasticsearchActor
 import actors.MainSearchActor
 import actors.StatisticsActor
+import actors.ServerTickActor
 
 object Global extends GlobalSettings {
 
@@ -26,6 +27,7 @@ object Global extends GlobalSettings {
     Akka.system.actorOf(Props[ElasticsearchActor], "elasticSearch")
     Akka.system.actorOf(Props[MainSearchActor], "channelSearch")
     Akka.system.actorOf(Props[StatisticsActor], "statistics")
+    Akka.system.actorOf(Props[ServerTickActor], "serverTick")
 
   }
 
