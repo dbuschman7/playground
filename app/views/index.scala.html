@@ -5,13 +5,17 @@
 <head>
 <title>@title</title>
 <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/nv.d3.min.css")">
 <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
+
 <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
 
 <script src="@routes.WebJarAssets.at(WebJarAssets.locate("angular.min.js"))"></script>
 <script src="@routes.Assets.at("javascripts/controllers.js")"></script>
 <script src="@routes.Assets.at("javascripts/app.js")"></script>
 <script src="@routes.Assets.at("javascripts/d3.v3.min.js")"></script>
+<!-- <script src="@routes.Assets.at("javascripts/d3.v2.js")"></script> -->
+<script src="@routes.Assets.at("javascripts/nv.d3.min.js")"></script>
 
 <style type="text/css">
 td.left {
@@ -24,12 +28,12 @@ td.right {
 
 .serverLabel {
 	margin: 3px;
+	padding: 3px;
 	font: 12px sans-serif;
 	color: black;
 }
 
 .serverData {
-	margin: 3px;
 	font: 12px sans-serif;
 	color: steelblue;
 }
@@ -60,15 +64,23 @@ td.right {
 }
 
 .middleLeft {
-	width: 25%;
+	width: 100px;
+	padding: 10px;
+	vertical-align: top;
+}
+
+.lineBar {
+	padding: 3px;
 }
 
 .middleRight {
 	width: 25%;
+	padding: 1px;
 }
 
 .right {
-	width: 25%;
+	width: 100px;
+	/* 	border: 1px solid #000; */
 }
 
 .form-search {
@@ -87,6 +99,14 @@ td.right {
 	background-color: red;
 }
 
+.high {
+	background-color: yellow;
+	border: 1px solid #aaa;
+}
+
+.pieDevice svg {
+	height: 400px;
+}
 </style>
 
 </head>
@@ -96,48 +116,57 @@ td.right {
 		<table class="well">
 			<tr>
 				<td width="35%" class="left">
-					<p class="serverTime">Server Time: {{serverTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</p>
+					<p class="serverTime">Elasticsearch Query</p>
 					<form class="form-search" ng-submit="startSearching()">
 						<input type="text" class="input-xlarge search-query" name="searchString" id="textField" ng-model="searchString"
 							placeholder="Enter Lucene query string" /> <input type="button" class="btn btn-primary" id="search" value="Search"
 							ng-click="startSearching()" />
 					</form>
 					<p class="serverLabel">
-						Requests : <span class="serverData">{{requests}}</span>
+						Server Time : <span class="serverData"> {{serverTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</span>
 					</p>
 					<p class="serverLabel">
+						Requests : <span class="serverData">{{requests}}</span>
+					</p>
+					<p class="serverLabel" ng-class="{high: responseTime > 500}">
 						ResponseTime(avg) : <span class="serverData">{{responseTime | number:2}}</span>
 					</p>
 				</td>
 				<td class="middleLeft">
-					<p class="serverLabel">
+					<p class="serverLabel" ng-class="{high: highBrand=='chrome'}">
 						Chrome : <span class="serverData">{{chrome}}</span>
 					</p>
-					<p class="serverLabel">
+					<p class="serverLabel" ng-class="{high: highBrand=='safari'}">
 						Safari : <span class="serverData">{{safari}}</span>
 					</p>
-					<p class="serverLabel">
+					<p class="serverLabel" ng-class="{high: highBrand=='firefox'}">
 						Firefox : <span class="serverData">{{firefox}}</span
 					</p>
-					<p class="serverLabel">
+					<p class="serverLabel" ng-class="{high: highBrand=='other'}">
 						Other : <span class="serverData">{{other}}</span>
 					</p> <br />
-					<p class="serverLabel">
+				</td>
+				<td class="middleLeft">
+					<p class="serverLabel" ng-class="{high: highDevice=='desktop'}">
 						Desktop : <span class="serverData">{{desktop}}</span>
 					</p>
-					<p class="serverLabel">
+					<p class="serverLabel" ng-class="{high: highDevice=='tablet'}">
 						Tablet : <span class="serverData">{{tablet}}</span>
 					</p>
-					<p class="serverLabel">
+					<p class="serverLabel" ng-class="{high: highDevice=='phone'}">
 						Phone : <span class="serverData">{{phone}}</span>
 					</p>
-					<p class="serverLabel">
+					<p class="serverLabel" ng-class="{high: highDevice=='tv'}">
 						Tv : <span class="serverData">{{tv}}</span>
 					</p>
-
+				</td>
+				<td class="middle" width="200" height="150">
+					<div>
+						<svg></svg>
+					</div>
 				</td>
 				<td class="middleRight"></td>
-				<td class="right"></td>
+				<td class="right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 			</tr>
 		</table>
 		<div id="results">
@@ -154,7 +183,7 @@ td.right {
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat="searchResult in searchResults | limitTo:10" >
+					<tr ng-repeat="searchResult in searchResults | limitTo:10">
 						<td>{{searchResult.timestamp}}</td>
 						<td>{{searchResult.method}}</td>
 						<td>{{searchResult.path}}</td>
@@ -167,6 +196,12 @@ td.right {
 			</table>
 		</div>
 	</div>
+
+
+	<div class="pieDevice">
+		<svg></svg>
+	</div>
+
 
 	<a href="http://www.reactivemanifesto.org/"> <img style="border: 0; position: fixed; right: 0; top: 0; z-index: 9000"
 		src="@routes.Assets.at("/images/we-are-reactive-blue-right.png")">
@@ -198,7 +233,7 @@ td.right {
 	}
 
 	// initial empty scale
-	var xScale = d3.scale.linear().domain([ 0, 0 ]).range([ 0, 420 ]);
+	var xScale = d3.scale.linear().domain([ 0, 0 ]).range([ 0, 150 ]);
 
 	var methodChart = d3.select(".middleRight")//
 	.append("div").attr("class", "methodChart");
@@ -215,7 +250,7 @@ td.right {
 	function redrawMethods(currentData) {
 		xScale = d3.scale.linear()//
 		.domain([ 0, d3.max(currentData) ])//
-		.range([ 0, 420 ]);
+		.range([ 0, 150 ]);
 
 		// Update…
 		methodChart.selectAll("div")//
@@ -226,5 +261,44 @@ td.right {
 		})//
 		.text(generateLabel)//
 		;
+	}
+	
+	function determineHighBrand(scopeData) {
+		var high = 'chrome';
+		var highVal = scopeData.chrome;
+
+		if (highVal < scopeData.safari) {
+			high = 'safari';
+			highVal = scopeData.safari;
+		}
+		if (highVal < scopeData.firefox) {
+			high = 'firefox';
+			hightVal = scopeData.firefox;
+		}
+		if (highVal < scopeData.other) {
+			high = 'other';
+			hightVal = scopeData.other;
+		}
+
+		return high;
+	}
+
+	function determineHighDevice(scopeData) {
+		var high = 'desktop';
+		var highVal = scopeData.desktop;
+
+		if (highVal < scopeData.tablet) {
+			high = 'tablet';
+			highVal = scopeData.tablet;
+		}
+		if (highVal < scopeData.phone) {
+			high = 'phone';
+			highVal = scopeData.tablet;
+		}
+		if (highVal < scopeData.tv) {
+			high = 'tv';
+			hightVal = scopeData.tv;
+		}
+		return high;
 	}
 </script>
