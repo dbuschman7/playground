@@ -15,8 +15,8 @@ import models.CurrentTime
  */
 class ServerTickActor extends Actor {
 
-  val mainSearch = context.system.actorFor("/user/channelSearch")
-  val producer = context.system.actorFor("/user/logEntryProducerActor")
+  val mainSearch = context.system.actorSelection("/user/channelSearch")
+  val producer = context.system.actorSelection("/user/logEntryProducerActor")
 
   val cancellable = context.system.scheduler.schedule(0 second, 1 second, self, CurrentTime.generateTick)
 

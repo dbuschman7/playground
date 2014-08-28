@@ -25,7 +25,7 @@ class MainSearchActor extends Actor {
 
   var channels = new HashMap[UUID, Concurrent.Channel[JsValue]]
 
-  val elasticSearchActor = context.system.actorFor("/user/elasticSearch")
+  val elasticSearchActor = context.system.actorSelection("/user/elasticSearch")
 
   def receive = {
     case startSearch: StartSearch => sender ! SearchFeed(startSearching(startSearch))

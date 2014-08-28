@@ -18,17 +18,15 @@ object Application extends Controller {
 
   implicit val timeout = Timeout(5 seconds)
 
-  val mainSearch = Akka.system.actorFor("/user/channelSearch")
+  val mainSearch = Akka.system.actorSelection("/user/channelSearch")
 
   def index = Action {
     Ok(views.html.index("Reactive Demo App"))
   }
 
-  def search(searchString: String) = Action {
-    Async {
-      (mainSearch ? StartSearch(searchString = searchString)).map {
-        case SearchFeed(out) => Ok.stream(out &> EventSource()).as("text/event-stream")
-      }
+  def search(searchString: String) = Action.async {
+    (mainSearch ? StartSearch(searchString = searchString)).map {
+      case SearchFeed(out) => Ok.chunked(out &> EventSource()).as("text/event-stream")
     }
   }
 }

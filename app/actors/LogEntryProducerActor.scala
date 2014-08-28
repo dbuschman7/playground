@@ -25,8 +25,8 @@ class LogEntryProducerActor extends Actor {
 
   val statuses = Array(200, 404, 201, 500)
 
-  val searchStore = context.system.actorFor("/user/elasticSearch")
-  val actionCounts = context.system.actorFor("/user/statistics")
+  val searchStore = context.system.actorSelection("/user/elasticSearch")
+  val actionCounts = context.system.actorSelection("/user/statistics")
 
   def receive = {
     case Tick(current) => {

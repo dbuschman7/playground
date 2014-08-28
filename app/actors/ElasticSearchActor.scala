@@ -2,7 +2,8 @@ package actors
 
 import akka.actor.{ ActorRef, Actor }
 import models.{ SearchMatch, StopSearch, LogEntry, StartSearch }
-import play.api.libs.ws.WS
+import play.api.libs.ws._;
+import play.api.Play.current
 import play.api.libs.json.{ JsArray, JsValue, Json }
 import java.util.UUID
 import scala.concurrent.ExecutionContext
@@ -11,7 +12,7 @@ import ExecutionContext.Implicits.global
  */
 class ElasticsearchActor extends Actor {
 
-  val mainSearch = context.system.actorFor("/user/channelSearch")
+  val mainSearch = context.system.actorSelection("/user/channelSearch")
 
   def receive = {
     case LogEntry(data) => percolate(data, sender)

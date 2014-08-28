@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong
  */
 class StatisticsActor extends Actor {
 
-  val mainSearch = context.system.actorFor("/user/channelSearch")
+  val mainSearch = context.system.actorSelection("/user/channelSearch")
 
   val data: Map[String, AtomicLong] = new HashMap;
 
