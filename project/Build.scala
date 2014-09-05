@@ -12,19 +12,18 @@ object ApplicationBuild extends Build {
 
   scalaVersion := "2.11.1"
     
-  val appName         = "realtime-search"
+  val appName         = "playground"
 
   val branch = "git rev-parse --abbrev-ref HEAD".!!.trim
   val commit = "git rev-parse --short HEAD".!!.trim
   val buildTime = (new java.text.SimpleDateFormat("yyyyMMdd-HHmmss")).format(new java.util.Date())
 
-  val major = 4
-  val minor = 10
+  val major = 1
+  val minor = 1
   val patch = 0
   val appVersion = s"$major.$minor.$patch-$commit"
 
-  //val oildexVersion = "4.10.0-SNAPSHOT"
-  val oildexVersion = "4.10.0-RC1"
+
 
   println()
   println(s"Git Branch    => ${branch}")
@@ -33,7 +32,6 @@ object ApplicationBuild extends Build {
   println(s"App Version   => ${appVersion}")
   println(s"Scala Version => ${scalaVersion}")
   println()
-
   
   val scalaBuildOptions = Seq("-unchecked", "-feature", "-language:reflectiveCalls", "-deprecation",
     "-language:implicitConversions", "-language:postfixOps", "-language:dynamics", "-language:higherKinds",
@@ -41,11 +39,12 @@ object ApplicationBuild extends Build {
 
 
   val appDependencies = Seq( ws,
-    "org.elasticsearch" % "elasticsearch" % "1.3.2",
+    "org.elasticsearch" % "elasticsearch" % "0.90.1",
     "commons-io" % "commons-io" % "2.4",
     "org.webjars" %% "webjars-play" % "2.3.0",
     "org.webjars" % "angularjs" % "1.2.23",
-    "org.webjars" % "bootstrap" % "3.2.0"
+    "org.webjars" % "bootstrap" % "3.2.0",
+    "org.webjars" % "d3js" % "3.4.11"
   )
 
   val playground = Project("playground", file("."))
@@ -69,8 +68,7 @@ object ApplicationBuild extends Build {
         "major" -> { major },
         "minor" -> { minor },
         "patch" -> { patch },
-        "commit" -> { commit },
-        "core" -> { oildexVersion }
+        "commit" -> { commit }
         )
       )    
     .settings(

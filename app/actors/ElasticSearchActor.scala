@@ -49,7 +49,7 @@ class ElasticsearchActor extends Actor {
   private def unregisterQuery(id: UUID) {
     //    println("unregister query")
 
-    WS.url("http://localhost:9200/logentries/logentry/_percolator/" + id.toString).delete
+    WS.url("http://localhost:9200/_percolator/logentries/" + id.toString).delete
   }
 
   private def registerQuery(id: UUID, searchString: String) {
@@ -62,7 +62,7 @@ class ElasticsearchActor extends Actor {
 
     val client: WSClient = new NingWSClient(new AsyncHttpClientConfig.Builder().build())
     val future: Future[WSResponse] = client //
-      .url("http://localhost:9200/logentries/logentry/_percolator/" + id.toString) //
+      .url("http://localhost:9200/_percolator/logentries/" + id.toString) //
       .put(Json.stringify(query))
 
     future onComplete {

@@ -33,6 +33,7 @@ angular.module('realtimeSearch.controllers', []).controller(
 					var data = raw.data;
 					// console.log("Received data for " + target);
 					if (target == "searchResult") {
+						console.log("data");
 						$scope.searchResults.unshift(data);
 					} else if (target == "serverTick") {
 						$scope.serverTime = data;

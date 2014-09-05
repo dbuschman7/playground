@@ -17,7 +17,7 @@ class LogEntryProducerActor extends Actor {
 
   val devices = Array("Desktop", "Tablet", "Phone", "TV")
 
-  val userAgents = Array("Chrome", "Firefox", "Internet Explorer", "Safari", "HttpClient")
+  val userAgents = Array("Chrome", "Firefox", "IE", "Safari", "HttpClient")
 
   val paths = Array("/a", "/b", "/c", "/d", "/e")
 
@@ -30,9 +30,7 @@ class LogEntryProducerActor extends Actor {
 
   def receive = {
     case Tick(current) => {
-      //      println("Tick generated")
-      val currentTick = CurrentTime.generateTick;
-      val entry = LogEntry(generateLogEntry(currentTick.time))
+      val entry = LogEntry(generateLogEntry)
       searchStore ! entry
       actionCounts ! entry
     }
@@ -42,9 +40,9 @@ class LogEntryProducerActor extends Actor {
     println("Log Generator Starting")
   }
 
-  private def generateLogEntry(current: String) = {
+  private def generateLogEntry = {
     Json.obj(
-      "timestamp" -> current,
+      "timestamp" -> CurrentTime.generateTick.time,
       "response_time" -> randomResponseTime,
       "method" -> randomElement(methods),
       "path" -> randomElement(paths),
