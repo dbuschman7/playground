@@ -29,4 +29,12 @@ object Application extends Controller {
       case SearchFeed(out) => Ok.chunked(out &> EventSource()).as("text/event-stream")
     }
   }
+
+  def main = Action {
+    Ok(views.html.main("Lightspeed7"))
+  }
+
+  def cookbook = Action {
+    Ok(views.html.cookbook("Cookbook"))
+  }
 }

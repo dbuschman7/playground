@@ -1,6 +1,6 @@
-'use strict';
 
 
-angular.module('realtimeSearch', ['realtimeSearch.controllers'])
+
+angular.module('realtimeSearch', ['ngRoute','realtimeSearch.controllers'])
 
 ;

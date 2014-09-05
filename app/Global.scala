@@ -17,6 +17,7 @@ object Global extends GlobalSettings {
   var esDataDirectory: File = _
 
   override def onStart(app: Application) {
+
     esDataDirectory = new File(app.path, "elasticsearch-data")
     FileUtils.deleteDirectory(esDataDirectory)
     esServer = new EmbeddedESServer(esDataDirectory)

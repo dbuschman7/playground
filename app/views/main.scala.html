@@ -1,0 +1,278 @@
+@(title: String)
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>@title</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/assets/stylesheets/theme.css" rel="stylesheet" media="screen">
+	<style>
+		body {
+			padding-top:70px;
+		}
+		.nowrap { 
+			white-space: nowrap;
+		}
+		.highlightLabel { 
+			padding : 2px 2px 2px 2px;
+		}
+	</style>
+	
+</head>
+
+<body ng-app="realtimeSearch"> 
+
+<nav class="nav nav-tabs navbar-fixed-top " role="navigation">
+	<div class="container">
+	  <!-- Brand and toggle get grouped for better mobile display -->
+	  <div class="navbar-header">
+		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+		  <span class="sr-only">Toggle navigation</span>
+		  <span class="icon-bar"></span>
+		  <span class="icon-bar"></span>
+		  <span class="icon-bar"></span>
+		</button>
+		<a class="navbar-brand" href="#">me.lightspeed7</a>
+	  </div>
+
+	  <!-- Collect the nav links, forms, and other content for toggling -->
+	  <div class="collapse navbar-collapse navbar-ex1-collapse">
+		<ul class="nav navbar-nav">
+		  <li class="active"><a href="#">Home</a></li>
+		  <li><a href="#">Real-Time</a></li>
+		  <li><a href="#">MongoFS</a>
+		</ul>
+	  </div><!-- /.navbar-collapse --> 
+	</div>	
+</nav>
+		
+
+<section >
+	<div class="row" ng-controller="SearchCtrl" >
+	  <div class="col-lg-4">
+		<div class="panel panel-default" id="search">
+			<div class="panel-body">
+				<div class="input-group">
+					<span class="input-group-btn"><button class="btn btn-primary" type="button" id="search" ng-click="startSearching()" >Search</button></span>
+					<input type="text" class="form-control" placeholder="Enter Lucene query string" name="searchString" ng-model="searchString" >
+				</div>
+				<p>&nbsp;</p>
+				<p class="highlightLabel">
+					Server Time : {{serverTime | date:'yyyy-MM-dd HH:mm:ss Z'}}
+				</p>
+				<p class="highlightLabel">
+					Requests : {{requests}}
+				</p>
+				<p  class="highlightLabel" ng-class="{'panel-warning': responseTime > 500}">
+					ResponseTime(avg) : {{responseTime | number:2}}
+				</p>
+			</div>
+        </div>
+	  </div>
+	  <div class="col-lg-2">
+		<div class="panel panel-default" id="browsers">
+        	<div class="panel-heading">Browsers</div>
+			<div class="panel-body">
+				<p  class="highlightLabel" ng-class="{'panel-warning': highBrand=='chrome'}">
+					Chrome : {{chrome}}
+				</p>
+				<p  class="highlightLabel" ng-class="{'panel-warning': highBrand=='safari'}">
+					Safari : {{safari}}
+				</p>
+				<p class="highlightLabel" ng-class="{'panel-warning': highBrand=='firefox'}">
+					Firefox : {{firefox}}
+				</p>
+				<p class="highlightLabel" ng-class="{'panel-warning': highBrand=='other'}">
+					Other : {{other}}
+				</p>   
+			</div>
+        </div>
+	  </div>
+
+	  <div class="col-lg-2">
+		<div class="panel panel-default" id="devices">
+        	<div class="panel-heading">Devices</div>
+			<div class="panel-body">
+					<p class="highlightLabel" ng-class="{'panel-warning': highDevice=='desktop'}">
+						Desktop : {{desktop}}
+					</p>
+					<p class="highlightLabel" ng-class="{'panel-warning': highDevice=='tablet'}">
+						Tablet : {{tablet}}
+					</p>
+					<p class="highlightLabel" ng-class="{'panel-warning': highDevice=='phone'}">
+						Phone : {{phone}}
+					</p>
+					<p class="highlightLabel" ng-class="{'panel-warning': highDevice=='tv'}">
+						Tv : {{tv}}
+					</p>  
+			</div>
+        </div>
+	  </div>
+
+	  <div class="col-lg-3">
+		<div class="panel panel-default" id="verbs">
+        	<div class="panel-heading">Verbs</div>
+			<div class="panel-body">
+				<div class="verbChart"></div>
+			</div>
+        </div>
+	  </div>
+	</div> <!-- search row -->
+	
+	<div class="row" ng-controller="SearchCtrl" >
+	
+	  <div class="col-lg-12">
+		<div class="panel panel-default" >
+			<div class="panel-body" id="results">
+				<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Timestamp</th>
+						<th>Method</th>
+						<th>Path</th>
+						<th>Status</th>
+						<th>Time (ms)</th>
+						<th>Device</th>
+						<th>User Agent</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="searchResult in searchResults | limitTo:10">
+						<td>{{searchResult.timestamp}}</td>
+						<td>{{searchResult.method}}</td>
+						<td>{{searchResult.path}}</td>
+						<td>{{searchResult.status}}</td>
+						<td>{{searchResult.response_time}}</td>
+						<td>{{searchResult.device}}</td>
+						<td>{{searchResult.user_agent}}</td>
+					</tr>
+				</tbody>
+			</table>	
+			</div>
+        </div>
+	  </div> <!-- viewport wrapper -->
+	
+	
+	
+	</div> <!--  results row -->
+</section>
+
+<script src="@routes.WebJarAssets.at(WebJarAssets.locate("angular.min.js"))"></script>
+<script src="@routes.WebJarAssets.at(WebJarAssets.locate("angular-route.min.js"))"></script>
+<script src="@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))"></script>
+<script src="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.js"))"></script>
+<script src="@routes.WebJarAssets.at(WebJarAssets.locate("d3.min.js"))"></script>
+<script src="@routes.Assets.at("javascripts/app.js")"></script>
+<script src="@routes.Assets.at("javascripts/controllers.js")"></script>
+
+<a href="http://www.reactivemanifesto.org/"> <img style="border: 0; position: fixed; right: 0; top: 0; z-index: 9000"
+	src="@routes.Assets.at("/images/we-are-reactive-blue-right.png")">
+</a>
+	
+<script type="text/javascript">
+	function fitLabel(action, count) {
+		if (count == 0) {
+			return "";
+		}
+		return action + " " + count;
+	}
+
+	function generateLabel(d, i) {
+		switch (i) {
+		case 0:
+			return fitLabel("GET", d);
+		case 1:
+			return fitLabel("PUT", d);
+		case 2:
+			return fitLabel("POST ", d);
+		case 3:
+			return fitLabel("DELETE ", d);
+		default: {
+			return fitLabel("", d);
+		}
+		}
+	}
+
+	// initial empty scale
+	var xScale = d3.scale.linear().domain([ 0, 0 ]).range([ 0, 150 ]);
+
+	var methodChart = d3.select(".verbChart");
+	var count = 0;
+	//
+	methodChart.selectAll("div") //
+	.data([ 0, 0, 0, 0 ]).enter() //
+	.append("div")//
+	.attr("class", function(d) {
+		count +=1;
+        if (count == 1) { return "highlightLabel nowrap panel-primary";}
+        if (count == 2) { return "highlightLabel nowrap panel-success";}
+        if (count == 3) { return "highlightLabel nowrap panel-danger";}
+        if (count == 4) { return "highlightLabel nowrap panel-info";}
+    }) // 
+	.style("width", function(d) {
+		return xScale(d) + "px";
+	})//
+	.text(generateLabel)//
+	;
+
+	function redrawMethods(currentData) {
+		xScale = d3.scale.linear()//
+		.domain([ 0, d3.max(currentData) ])//
+		.range([ 0, 150 ]);
+
+		// Update…
+		methodChart.selectAll("div")//
+		.data(currentData)//
+		.transition().duration(600)//
+		.style("width", function(d) {
+			return xScale(d) + "px";
+		})//
+		.text(generateLabel)//
+		;
+	}
+	
+	function determineHighBrand(scopeData) {
+		var high = 'chrome';
+		var highVal = scopeData.chrome;
+
+		if (highVal < scopeData.safari) {
+			high = 'safari';
+			highVal = scopeData.safari;
+		}
+		if (highVal < scopeData.firefox) {
+			high = 'firefox';
+			hightVal = scopeData.firefox;
+		}
+		if (highVal < scopeData.other) {
+			high = 'other';
+			hightVal = scopeData.other;
+		}
+
+		return high;
+	}
+
+	function determineHighDevice(scopeData) {
+		var high = 'desktop';
+		var highVal = scopeData.desktop;
+
+		if (highVal < scopeData.tablet) {
+			high = 'tablet';
+			highVal = scopeData.tablet;
+		}
+		if (highVal < scopeData.phone) {
+			high = 'phone';
+			highVal = scopeData.phone;
+		}
+		if (highVal < scopeData.tv) {
+			high = 'tv';
+			hightVal = scopeData.tv;
+		}
+		return high;
+	}
+</script>	
+	
+	
+</body>
+</html>

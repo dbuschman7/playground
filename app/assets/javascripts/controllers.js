@@ -1,4 +1,4 @@
-'use strict';
+
 
 angular.module('realtimeSearch.controllers', []).controller(
 		'SearchCtrl',
@@ -33,7 +33,7 @@ angular.module('realtimeSearch.controllers', []).controller(
 					var data = raw.data;
 					// console.log("Received data for " + target);
 					if (target == "searchResult") {
-						$scope.searchResults.unshift(data)
+						$scope.searchResults.unshift(data);
 					} else if (target == "serverTick") {
 						$scope.serverTime = data;
 					} else if (target == "statistics") {
@@ -63,26 +63,23 @@ angular.module('realtimeSearch.controllers', []).controller(
 
 						// response time
 						$scope.requests = data.requests;
-						$scope.responseTime = data.totalResponseTime
-								/ data.requests;
+						$scope.responseTime = data.totalResponseTime / data.requests;
 					}
 				});
-			}
+			};
 
 			$scope.startSearching = function() {
-				$scope.stopSearching()
+				$scope.stopSearching();
 				$scope.searchResults = [];
-				$scope.searchFeed = new EventSource("/search/"
-						+ $scope.searchString);
-				$scope.searchFeed.addEventListener("message",
-						$scope.handleServerEvent, false);
+				$scope.searchFeed = new EventSource("/search/" + $scope.searchString);
+				$scope.searchFeed.addEventListener("message", $scope.handleServerEvent, false);
 			};
 
 			$scope.stopSearching = function() {
 				if (typeof $scope.searchFeed != 'undefined') {
 					$scope.searchFeed.close();
 				}
-			}
+			};
 		});
 
 //

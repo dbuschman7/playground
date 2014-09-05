@@ -47,11 +47,11 @@ class MainSearchActor extends Actor {
 
   // send to the specific channels that want this data.
   private def broadcastToClient(searchMatch: SearchMatch) {
-    // println("Broadcasting SearchResult Match")
+    println("Broadcasting SearchResult Match")
     searchMatch.matchingChannelIds.foreach {
       channels.get(_).map {
         val data: JsValue = Json.obj("target" -> "searchResult", "data" -> searchMatch.logEntry.data)
-        // println(s"JSValue = $data")
+        println(s"JSValue = $data")
         _ push data
       }
     }
