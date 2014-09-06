@@ -26,6 +26,7 @@ class MainSearchActor extends Actor {
   var channels = new HashMap[UUID, Concurrent.Channel[JsValue]]
 
   val elasticSearchActor = context.system.actorSelection("/user/elasticSearch")
+  val tickGenerator = context.system.actorSelection("/user/serverTick");
 
   def receive = {
     case startSearch: StartSearch => sender ! SearchFeed(startSearching(startSearch))
@@ -33,6 +34,7 @@ class MainSearchActor extends Actor {
     case searchMatch: SearchMatch => broadcastToClient(searchMatch)
     case statistics: Statistics => broadcastToClient(statistics)
     case tick: Tick => broadcastToClient(tick)
+    case TickStop => channels.clear
   }
 
   // broadcast to all open channels
@@ -47,11 +49,11 @@ class MainSearchActor extends Actor {
 
   // send to the specific channels that want this data.
   private def broadcastToClient(searchMatch: SearchMatch) {
-    println("Broadcasting SearchResult Match")
+    //    println("Broadcasting SearchResult Match")
     searchMatch.matchingChannelIds.foreach {
       channels.get(_).map {
         val data: JsValue = Json.obj("target" -> "searchResult", "data" -> searchMatch.logEntry.data)
-        println(s"JSValue = $data")
+        // println(s"JSValue = $data")
         _ push data
       }
     }
@@ -72,6 +74,7 @@ class MainSearchActor extends Actor {
       onStart = (c) => {
         channels += (startSearch.id -> c)
         elasticSearchActor ! startSearch
+        tickGenerator ! TickStart // start the tick running
       },
       onComplete = {
         self ! StopSearch(startSearch.id)

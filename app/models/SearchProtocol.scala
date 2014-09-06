@@ -9,6 +9,8 @@ import play.api.libs.json.JsArray
 import play.api.libs.json.JsObject
 
 case class Tick(time: String)
+case class TickStart
+case class TickStop
 
 object CurrentTime {
   val timestampFormat = ISODateTimeFormat.dateTime()

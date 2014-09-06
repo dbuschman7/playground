@@ -20,8 +20,8 @@ object Application extends Controller {
 
   val mainSearch = Akka.system.actorSelection("/user/channelSearch")
 
-  def index = Action {
-    Ok(views.html.index("Reactive Demo App"))
+  def home = Action {
+    Ok(views.html.home())
   }
 
   def search(searchString: String) = Action.async {
@@ -30,8 +30,12 @@ object Application extends Controller {
     }
   }
 
-  def main = Action {
-    Ok(views.html.main("Lightspeed7"))
+  def real = Action {
+    Ok(views.html.real())
+  }
+
+  def mongofs = Action {
+    Ok(views.html.mongofs())
   }
 
   def cookbook = Action {

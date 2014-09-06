@@ -3,8 +3,9 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
-GET     /main                       controllers.Application.main
+GET     /                           controllers.Application.home
+GET     /real                       controllers.Application.real
+GET     /mongofs                    controllers.Application.mongofs
 GET     /cookbook                   controllers.Application.cookbook
 GET     /search/:searchString       controllers.Application.search(searchString)
 

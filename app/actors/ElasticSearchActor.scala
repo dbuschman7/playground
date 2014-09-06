@@ -37,10 +37,10 @@ class ElasticsearchActor extends Actor {
         if (status) {
           val matchingIds = (body \ "matches").asInstanceOf[JsArray].value.foldLeft(List[UUID]())((acc, v) => UUID.fromString(v.as[String]) :: acc)
           if (!matchingIds.isEmpty) {
-            println(s"MatchingIds = $matchingIds")
+            //            println(s"MatchingIds = $matchingIds")
             mainSearch ! SearchMatch(LogEntry(logJson), matchingIds)
           } else {
-            println("No Matching Ids")
+            //            println("No Matching Ids")
           }
         }
     }
@@ -69,7 +69,7 @@ class ElasticsearchActor extends Actor {
       case Success(response) => {
         val status = response.status
         val body = response.body
-        println(s"Status $status - $body")
+        //        println(s"Status $status - $body")
       }
       case Failure(t) => println("An error has occured: " + t.getMessage)
     }
