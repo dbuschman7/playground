@@ -92,13 +92,13 @@
 				</thead>
 				<tbody>
 					<tr ng-repeat="searchResult in searchResults | limitTo:10">
-						<td>{{searchResult.timestamp}}</td>
+						<td>{{searchResult.ts}}</td>
 						<td>{{searchResult.method}}</td>
 						<td>{{searchResult.path}}</td>
 						<td>{{searchResult.status}}</td>
-						<td>{{searchResult.response_time}}</td>
+						<td>{{searchResult.time}}</td>
 						<td>{{searchResult.device}}</td>
-						<td>{{searchResult.user_agent}}</td>
+						<td>{{searchResult.agent}}</td>
 					</tr>
 				</tbody>
 			</table>	

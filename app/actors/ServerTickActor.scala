@@ -16,10 +16,10 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class ServerTickActor extends Actor {
 
-  val mainSearch = context.system.actorSelection("/user/channelSearch")
-  val producer = context.system.actorSelection("/user/logEntryProducerActor")
+  val channels = context.system.actorSelection("/user/channels")
+  val producer = context.system.actorSelection("/user/logEntryProducer")
 
-  val ticksPerClick: Int = 10
+  val ticksPerClick: Int = 25
 
   var cancellable: akka.actor.Cancellable = null
 
@@ -29,7 +29,7 @@ class ServerTickActor extends Actor {
     case Tick(current) => {
       println("Tick Generated")
       val currentTick = CurrentTime.generateTick;
-      mainSearch ! currentTick;
+      channels ! currentTick;
       producer ! currentTick;
 
       if (0 == remainingTicks.decrementAndGet()) {
@@ -49,7 +49,8 @@ class ServerTickActor extends Actor {
       if (cancellable != null) {
         cancellable.cancel
         cancellable = null
-        mainSearch ! TickStop
+        channels ! TickStop
+        producer ! TickStop
       }
     }
   }

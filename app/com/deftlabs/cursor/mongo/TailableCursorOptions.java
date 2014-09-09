@@ -1,0 +1,148 @@
+/**
+ * Copyright 2011, Deft Labs.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.deftlabs.cursor.mongo;
+
+// Mongo
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
+/**
+ * The tailable cursor options object.
+ */
+public class TailableCursorOptions {
+
+    public void setErrorListener(final TailableCursorErrorListener pV) {
+        _errorListener = pV;
+    }
+
+    public TailableCursorErrorListener getErrorListener() {
+        return _errorListener;
+    }
+
+    public boolean hasErrorListener() {
+        return _errorListener != null;
+    }
+
+    public void setInitialQuery(final DBObject pV) {
+        _initialQuery = pV;
+    }
+
+    public DBObject getInitialQuery() {
+        return _initialQuery;
+    }
+
+    /**
+     * Set the no doc sleep time. This is called when there are no more docs in the oplog. The default is one second. Decreasing places
+     * extra queries on your collection.
+     */
+    public void setNoDocSleepTime(final long pV) {
+        _noDocSleepTime = pV;
+    }
+
+    public long getNoDocSleepTime() {
+        return _noDocSleepTime;
+    }
+
+    public void setErrorSleepTime(final long pV) {
+        _errorSleepTime = pV;
+    }
+
+    public long getErrorSleepTime() {
+        return _errorSleepTime;
+    }
+
+    // public String getMongoUri() { return _mongoUri; }
+
+    /**
+     * Set the assert if no capped collection flag. The default is false. The default behavior is to create a new capped collection with the
+     * params specified.
+     */
+    public void setAssertIfNoCappedCollection(final boolean pV) {
+        _assertIfNoCappedCollection = pV;
+    }
+
+    public boolean getAssertIfNoCappedCollection() {
+        return _assertIfNoCappedCollection;
+    }
+
+    public void setDefaultCappedCollectionSize(final long pV) {
+        _defaultCappedCollectionSize = pV;
+    }
+
+    /**
+     * If the capped collection does not exist and assertIfNoCappedCollection == false, then a new capped collection will be created with
+     * this size. The default behavior of this library is to create a capped collection if one does not exist.
+     */
+    public long getDefaultCappedCollectionSize() {
+        return _defaultCappedCollectionSize;
+    }
+
+    public void setDocListener(final TailableCursorDocListener pV) {
+        _docListener = pV;
+    }
+
+    public TailableCursorDocListener getDocListener() {
+        return _docListener;
+    }
+
+    public boolean hasDocListener() {
+        return _docListener != null;
+    }
+
+    // public String getDatabaseName() { return _databaseName; }
+    public String getCollectionName() {
+        return _collectionName;
+    }
+
+    private TailableCursorErrorListener _errorListener;
+    private DBObject _initialQuery = new BasicDBObject();
+    private long _noDocSleepTime = 1000; // time in ms
+    private long _errorSleepTime = 1000; // time in ms
+
+    private long _defaultCappedCollectionSize = 209715200l; // size in bytes
+
+    private boolean _assertIfNoCappedCollection = false;
+
+    // private final String _mongoUri;
+    // private final String _databaseName;
+    private final String _collectionName;
+    private TailableCursorDocListener _docListener;
+    private String _threadName;
+
+    /**
+     * The only required params are the uri, database and collection names.
+     * 
+     * @param pMongoUri
+     *            The uri to connect to the server.
+     * @param pDatabaseName
+     *            The database name.
+     * @param pCollectionName
+     *            The collection name. If this is not a capped collection, an exception will be thrown.
+     */
+    public TailableCursorOptions(final String pCollectionName) {
+
+        _collectionName = pCollectionName;
+    }
+
+    public String getThreadName() {
+        return _threadName;
+    }
+
+    public void setThreadName(String threadName) {
+        _threadName = threadName;
+    }
+}

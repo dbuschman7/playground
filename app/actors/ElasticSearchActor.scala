@@ -18,7 +18,7 @@ import scala.util.Failure
  */
 class ElasticsearchActor extends Actor {
 
-  val mainSearch = context.system.actorSelection("/user/channelSearch")
+  val channels = context.system.actorSelection("/user/channels")
 
   def receive = {
     case LogEntry(data) => percolate(data, sender)
@@ -38,7 +38,7 @@ class ElasticsearchActor extends Actor {
           val matchingIds = (body \ "matches").asInstanceOf[JsArray].value.foldLeft(List[UUID]())((acc, v) => UUID.fromString(v.as[String]) :: acc)
           if (!matchingIds.isEmpty) {
             //            println(s"MatchingIds = $matchingIds")
-            mainSearch ! SearchMatch(LogEntry(logJson), matchingIds)
+            channels ! SearchMatch(LogEntry(logJson), matchingIds)
           } else {
             //            println("No Matching Ids")
           }
@@ -53,7 +53,7 @@ class ElasticsearchActor extends Actor {
   }
 
   private def registerQuery(id: UUID, searchString: String) {
-    println(s"register query - $id")
+    println(s"ElasticSearch - register query - $id")
 
     val query = Json.obj(
       "query" -> Json.obj(

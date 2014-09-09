@@ -25,7 +25,7 @@ class MainSearchActor extends Actor {
 
   var channels = new HashMap[UUID, Concurrent.Channel[JsValue]]
 
-  val elasticSearchActor = context.system.actorSelection("/user/elasticSearch")
+  val searchActor = context.system.actorSelection("/user/search")
   val tickGenerator = context.system.actorSelection("/user/serverTick");
 
   def receive = {
@@ -73,7 +73,7 @@ class MainSearchActor extends Actor {
     Concurrent.unicast[JsValue](
       onStart = (c) => {
         channels += (startSearch.id -> c)
-        elasticSearchActor ! startSearch
+        searchActor ! startSearch
         tickGenerator ! TickStart // start the tick running
       },
       onComplete = {
@@ -88,6 +88,6 @@ class MainSearchActor extends Actor {
 
   private def stopSearching(stopSearch: StopSearch) {
     channels -= stopSearch.id
-    elasticSearchActor ! stopSearch
+    searchActor ! stopSearch
   }
 }

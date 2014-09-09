@@ -10,7 +10,6 @@ import sbtbuildinfo.Plugin._
 
 object ApplicationBuild extends Build {
 
-  scalaVersion := "2.11.1"
     
   val appName         = "playground"
 
@@ -23,13 +22,14 @@ object ApplicationBuild extends Build {
   val patch = 0
   val appVersion = s"$major.$minor.$patch-$commit"
 
+  val scalaVersion = scala.util.Properties.versionString.substring(8) 
 
 
   println()
-  println(s"Git Branch    => ${branch}")
-  println(s"Git Commit    => ${commit}")
   println(s"App Name      => ${appName}")
   println(s"App Version   => ${appVersion}")
+  println(s"Git Branch    => ${branch}")
+  println(s"Git Commit    => ${commit}")
   println(s"Scala Version => ${scalaVersion}")
   println()
   
@@ -39,12 +39,13 @@ object ApplicationBuild extends Build {
 
 
   val appDependencies = Seq( ws,
-    "org.elasticsearch" % "elasticsearch" % "0.90.1",
+//    "org.elasticsearch" % "elasticsearch" % "0.90.1",
     "commons-io" % "commons-io" % "2.4",
-    "org.webjars" %% "webjars-play" % "2.3.0",
+    "org.webjars" %% "webjars-play" % "2.3.0" withSources() ,
     "org.webjars" % "angularjs" % "1.2.23",
     "org.webjars" % "bootstrap" % "3.2.0",
-    "org.webjars" % "d3js" % "3.4.11"
+    "org.webjars" % "d3js" % "3.4.11",
+    "me.lightspeed7" % "mongoFS" % "0.8.0"
   )
 
   val playground = Project("playground", file("."))
@@ -72,6 +73,7 @@ object ApplicationBuild extends Build {
         )
       )    
     .settings(
-      resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+      resolvers += "MongoFS Interim Maven Repo" at "https://github.com/dbuschman7/mvn-repo/raw/master"
     )
+    
 }

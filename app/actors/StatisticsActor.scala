@@ -18,17 +18,24 @@ import play.api.libs.json.JsObject
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsObject
 import java.util.concurrent.atomic.AtomicLong
+import models.TickStop
 
 /**
  */
 class StatisticsActor extends Actor {
 
-  val mainSearch = context.system.actorSelection("/user/channelSearch")
+  val channels = context.system.actorSelection("/user/channels")
 
   val data: Map[String, AtomicLong] = new HashMap;
 
   def receive = {
-    case LogEntry(data) => process(data, sender)
+    case LogEntry(data) => {
+      process(data, sender)
+      updateUserChannels
+    }
+    case TickStop => {
+      data.clear() // reset everything to zeros
+    }
   }
 
   def incValue(key: String) {
@@ -58,10 +65,10 @@ class StatisticsActor extends Actor {
   private def process(logJson: JsValue, requestor: ActorRef) {
     //   println(s"process called $logJson")
     //
-    var action = (logJson \ "method").as[String]
-    var device = (logJson \ "device").as[String]
-    var agent = (logJson \ "user_agent").as[String]
-    var responseTime = (logJson \ "response_time").as[Long]
+    val action = (logJson \ "method").as[String]
+    val device = (logJson \ "device").as[String]
+    val agent = (logJson \ "agent").as[String]
+    val responseTime = (logJson \ "time").as[Long]
 
     //    println(s"Action = $action, Device = $device, Agent = $agent")
     incValue(action)
@@ -70,6 +77,9 @@ class StatisticsActor extends Actor {
     incValue("requests")
     sumValue("totalResponseTime", responseTime)
 
+  }
+
+  private def updateUserChannels() {
     // generate the return data
     // not the best here, just need something to work quickly
     val retVal =
@@ -98,7 +108,6 @@ class StatisticsActor extends Actor {
         "totalResponseTime" -> getValue("totalResponseTime"));
 
     // println("Stringify = " + Json.stringify(retVal))
-    mainSearch ! Statistics(retVal)
+    channels ! Statistics(retVal)
   }
-
 }

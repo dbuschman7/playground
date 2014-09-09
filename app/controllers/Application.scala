@@ -18,14 +18,14 @@ object Application extends Controller {
 
   implicit val timeout = Timeout(5 seconds)
 
-  val mainSearch = Akka.system.actorSelection("/user/channelSearch")
+  val channels = Akka.system.actorSelection("/user/channels")
 
   def home = Action {
     Ok(views.html.home())
   }
 
   def search(searchString: String) = Action.async {
-    (mainSearch ? StartSearch(searchString = searchString)).map {
+    (channels ? StartSearch(searchString = searchString)).map {
       case SearchFeed(out) => Ok.chunked(out &> EventSource()).as("text/event-stream")
     }
   }

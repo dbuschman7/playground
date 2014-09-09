@@ -5,11 +5,10 @@ import java.util.Random
 import play.api.libs.json.Json
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
-import models.{ LogEntry, Tick }
+import models.{ LogEntry, Tick, TickStop, CurrentTime }
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
-import models.CurrentTime
 
 /**
  */
@@ -25,14 +24,18 @@ class LogEntryProducerActor extends Actor {
 
   val statuses = Array(200, 404, 201, 500)
 
-  val searchStore = context.system.actorSelection("/user/elasticSearch")
-  val actionCounts = context.system.actorSelection("/user/statistics")
+  val searchStore = context.system.actorSelection("/user/search")
+  val statistics = context.system.actorSelection("/user/statistics")
 
   def receive = {
     case Tick(current) => {
       val entry = LogEntry(generateLogEntry)
       searchStore ! entry
-      actionCounts ! entry
+      statistics ! entry
+    }
+    case TickStop => {
+      searchStore ! TickStop
+      statistics ! TickStop
     }
   }
 
@@ -42,13 +45,13 @@ class LogEntryProducerActor extends Actor {
 
   private def generateLogEntry = {
     Json.obj(
-      "timestamp" -> CurrentTime.generateTick.time,
-      "response_time" -> randomResponseTime,
+      "ts" -> CurrentTime.generateTick.time,
+      "time" -> randomResponseTime,
       "method" -> randomElement(methods),
       "path" -> randomElement(paths),
       "status" -> randomElement(statuses),
       "device" -> randomElement(devices),
-      "user_agent" -> randomElement(userAgents))
+      "agent" -> randomElement(userAgents))
   }
 
   private def randomElement[A](list: Array[A]) = {
