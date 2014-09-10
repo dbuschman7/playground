@@ -30,7 +30,7 @@ class StatisticsActor extends Actor {
 
   def receive = {
     case log: LogEntry => {
-      println("Processing LogEntry")
+      //      println("Processing LogEntry")
       process(log, sender)
       updateUserChannels
     }

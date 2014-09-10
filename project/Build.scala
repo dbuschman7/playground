@@ -8,6 +8,10 @@ import PlayKeys._
 import sys.process.stringSeqToProcess
 import sbtbuildinfo.Plugin._
 
+import com.typesafe.sbt.SbtNativePackager._
+import NativePackagerKeys._
+
+
 object ApplicationBuild extends Build {
 
     
@@ -38,6 +42,8 @@ object ApplicationBuild extends Build {
     "-language:existentials", "-language:experimental.macros", "-Xmax-classfile-name", "140")
 
 
+    
+    
   val appDependencies = Seq( ws,
 //    "org.elasticsearch" % "elasticsearch" % "0.90.1",
     "commons-io" % "commons-io" % "2.4",
@@ -56,6 +62,12 @@ object ApplicationBuild extends Build {
         libraryDependencies ++= appDependencies
     )
     .settings( buildInfoSettings: _*)
+    .settings( 
+            maintainer := "David Buschman", // setting a maintainer which is used for all packaging types
+            dockerExposedPorts in Docker := Seq(9000, 9443), // exposing the play ports
+            dockerBaseImage := "play_java_mongo_db/latest",
+            dockerRepository := Some("docker.transzap.com:2375/play_java_mongo_db")
+    )
     .settings(
       sourceGenerators in Compile <+= buildInfo,
       buildInfoPackage := "me.lightspeed7.version",
@@ -76,4 +88,6 @@ object ApplicationBuild extends Build {
       resolvers += "MongoFS Interim Maven Repo" at "https://github.com/dbuschman7/mvn-repo/raw/master"
     )
     
+   println(s"Deploy this with: docker run -p 10000:9000 ${appName}:${appVersion}")    
+
 }
