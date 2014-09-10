@@ -21,7 +21,7 @@ import play.api.libs.json.Json
 
 /**
  */
-class MainSearchActor extends Actor {
+class UserChannelsActor extends Actor {
 
   var channels = new HashMap[UUID, Concurrent.Channel[JsValue]]
 
@@ -40,8 +40,9 @@ class MainSearchActor extends Actor {
   // broadcast to all open channels
   private def broadcastToClient(tick: Tick) {
     // println("Broadcasting Server Tick")
+    val time = CurrentTime.now
     channels.values map { ch =>
-      val data: JsValue = Json.obj("target" -> "serverTick", "data" -> tick.time)
+      val data: JsValue = Json.obj("target" -> "serverTick", "data" -> time)
       // println(s"JSValue = $data")
       ch push data
     }
@@ -50,9 +51,13 @@ class MainSearchActor extends Actor {
   // send to the specific channels that want this data.
   private def broadcastToClient(searchMatch: SearchMatch) {
     //    println("Broadcasting SearchResult Match")
+
+    implicit val logEntryFormat = Json.format[LogEntry]
+    val logJson = Json.toJson(searchMatch.logEntry)
+
     searchMatch.matchingChannelIds.foreach {
       channels.get(_).map {
-        val data: JsValue = Json.obj("target" -> "searchResult", "data" -> searchMatch.logEntry.data)
+        val data: JsValue = Json.obj("target" -> "searchResult", "data" -> logJson)
         // println(s"JSValue = $data")
         _ push data
       }

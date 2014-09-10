@@ -34,6 +34,7 @@ import com.mongodb.BasicDBObject
 import com.deftlabs.cursor.mongo.TailableCursorImpl
 import models.TickStop
 import scala.collection.mutable.Map
+import play.api.libs.json.Format
 
 class TailableCursorActor extends Actor {
 
@@ -46,7 +47,7 @@ class TailableCursorActor extends Actor {
   val cursors = Map[UUID, MongoCursorWrapped]()
 
   def receive = {
-    case LogEntry(data) => percolate(data, sender)
+    case log: LogEntry => percolate(log, sender)
 
     case StartSearch(id, searchString) => registerQuery(id, searchString)
 
@@ -61,27 +62,28 @@ class TailableCursorActor extends Actor {
     }
   }
 
-  private def percolate(logJson: JsValue, requestor: ActorRef) {
+  private def percolate(log: LogEntry, requestor: ActorRef) {
     //    println(s"percolate called $logJson")
 
-    val action = (logJson \ "method").as[String]
-    val device = (logJson \ "device").as[String]
-    val agent = (logJson \ "agent").as[String]
-    val responseTime = (logJson \ "time").as[Long]
-    val path = (logJson \ "path").as[String]
-    val status = (logJson \ "status").as[Int]
+    //
+    //    val action = (logJson \ "method").as[String]
+    //    val device = (logJson \ "device").as[String]
+    //    val agent = (logJson \ "agent").as[String]
+    //    val responseTime = (logJson \ "time").as[Long]
+    //    val path = (logJson \ "path").as[String]
+    //    val status = (logJson \ "status").as[Int]
 
     //{"timestamp":"2014-09-06T23:04:57.713-06:00","response_time":342,"method":"DELETE","path":"/c","status":500,"device":"TV","user_agent":"IE"}
-    val timestamp = ISODateTimeFormat.dateTime().parseDateTime((logJson \ "ts").as[String]);
+    //    val timestamp = ISODateTimeFormat.dateTime().parseDateTime((logJson \ "ts").as[String]);
 
     val obj = BasicDBObjectBuilder //
-      .start("ts", timestamp.toDate()) //
-      .add("method", action) //
-      .add("device", device) //
-      .add("agent", agent) //
-      .add("time", responseTime) //
-      .add("path", path) //
-      .add("status", status) //
+      .start("ts", log.ts.toDate()) //
+      .add("verb", log.verb) //
+      .add("device", log.device) //
+      .add("agent", log.agent) //
+      .add("time", log.time) //
+      .add("path", log.path) //
+      .add("status", log.status) //
       .get()
 
     coll.save(obj)
@@ -118,7 +120,7 @@ class TailableCursorActor extends Actor {
 
   override def preStart() {
     println("Mongo Connection - standing up ...")
-    val uri = new MongoClientURI"mongodb://cayman-vm:27017/playground")
+    val uri = new MongoClientURI("mongodb://cayman-vm:27017/playground")
     val client = new MongoClient(uri);
     db = client.getDB(uri.getDatabase());
 

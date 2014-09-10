@@ -20,7 +20,7 @@ class LogEntryProducerActor extends Actor {
 
   val paths = Array("/a", "/b", "/c", "/d", "/e")
 
-  val methods = Array("GET", "POST", "PUT", "DELETE")
+  val verbs = Array("GET", "POST", "PUT", "DELETE")
 
   val statuses = Array(200, 404, 201, 500)
 
@@ -28,8 +28,8 @@ class LogEntryProducerActor extends Actor {
   val statistics = context.system.actorSelection("/user/statistics")
 
   def receive = {
-    case Tick(current) => {
-      val entry = LogEntry(generateLogEntry)
+    case t: Tick => {
+      val entry = generateLogEntry
       searchStore ! entry
       statistics ! entry
     }
@@ -43,15 +43,16 @@ class LogEntryProducerActor extends Actor {
     println("Log Generator Starting")
   }
 
-  private def generateLogEntry = {
-    Json.obj(
-      "ts" -> CurrentTime.generateTick.time,
-      "time" -> randomResponseTime,
-      "method" -> randomElement(methods),
-      "path" -> randomElement(paths),
-      "status" -> randomElement(statuses),
-      "device" -> randomElement(devices),
-      "agent" -> randomElement(userAgents))
+  private def generateLogEntry: LogEntry = {
+
+    return new LogEntry(
+      DateTime.now(),
+      randomElement(verbs),
+      randomElement(devices),
+      randomElement(userAgents),
+      randomResponseTime,
+      randomElement(paths),
+      randomElement(statuses))
   }
 
   private def randomElement[A](list: Array[A]) = {

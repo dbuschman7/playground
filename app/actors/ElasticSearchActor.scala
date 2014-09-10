@@ -14,6 +14,8 @@ import play.api.libs.ws.ning.NingWSClient
 import com.ning.http.client.AsyncHttpClientConfig
 import scala.util.Success
 import scala.util.Failure
+import models.LogEntry
+import play.api.libs.json.Format
 /**
  */
 class ElasticsearchActor extends Actor {
@@ -21,13 +23,16 @@ class ElasticsearchActor extends Actor {
   val channels = context.system.actorSelection("/user/channels")
 
   def receive = {
-    case LogEntry(data) => percolate(data, sender)
+    case log: LogEntry => percolate(log, sender)
     case StartSearch(id, searchString) => registerQuery(id, searchString)
     case StopSearch(id) => unregisterQuery(id)
   }
 
-  private def percolate(logJson: JsValue, requestor: ActorRef) {
+  private def percolate(log: LogEntry, requestor: ActorRef) {
     //    println(s"percolate called $logJson")
+
+    implicit val logEntryFormat = Json.format[LogEntry]
+    val logJson = Json.toJson(log)
 
     WS.url("http://localhost:9200/logentries/logentry/_percolate").post(Json.stringify(Json.obj("doc" -> logJson))).map {
       response =>
@@ -38,7 +43,7 @@ class ElasticsearchActor extends Actor {
           val matchingIds = (body \ "matches").asInstanceOf[JsArray].value.foldLeft(List[UUID]())((acc, v) => UUID.fromString(v.as[String]) :: acc)
           if (!matchingIds.isEmpty) {
             //            println(s"MatchingIds = $matchingIds")
-            channels ! SearchMatch(LogEntry(logJson), matchingIds)
+            channels ! SearchMatch(log, matchingIds)
           } else {
             //            println("No Matching Ids")
           }

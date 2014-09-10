@@ -1,6 +1,2 @@
+angular.module('realtimeSearch', ['ngRoute','realtimeSearch.controllers']);
 
-
-
-angular.module('realtimeSearch', ['ngRoute','realtimeSearch.controllers'])
-
-;

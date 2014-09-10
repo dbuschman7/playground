@@ -2,12 +2,12 @@
 
 <section ng-controller="SearchCtrl" >
 	<div class="row" >
-	  <div class="col-xs-12 col-sm-4 col-md-3">
+	  <div class="col-xs-12 col-sm-4 col-md-4">
 		<div class="panel panel-default" id="search">
 			<div class="panel-body">
 				<div class="input-group">
 					<span class="input-group-btn"><button class="btn btn-primary" type="button" id="search" ng-click="startSearching()" >Search</button></span>
-					<input type="text" class="form-control" placeholder="Enter Lucene query string" name="searchString" ng-model="searchString" >
+					<input type="text" class="form-control" placeholder="Enter Lucene query string" name="searchString" ng-model="searchString" ng-enter="startSearching()" >
 				</div>
 				<p>&nbsp;</p>
 				<p class="highlightLabel">
@@ -35,8 +35,11 @@
 				<p class="highlightLabel" ng-class="{'panel-warning': highBrand=='firefox'}">
 					Firefox : {{firefox}}
 				</p>
-				<p class="highlightLabel" ng-class="{'panel-warning': highBrand=='other'}">
-					Other : {{other}}
+				<p class="highlightLabel" ng-class="{'panel-warning': highBrand=='ie'}">
+					IE : {{ie}}
+				</p> 
+				<p class="highlightLabel" ng-class="{'panel-warning': highBrand=='http'}">
+					Http : {{http}}
 				</p>   
 			</div>
         </div>
@@ -91,9 +94,9 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat="searchResult in searchResults | limitTo:10">
-						<td>{{searchResult.ts}}</td>
-						<td>{{searchResult.method}}</td>
+					<tr ng-repeat="searchResult in searchResults | limitTo:10" >
+						<td>{{searchResult.ts | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+						<td>{{searchResult.verb}}</td>
 						<td>{{searchResult.path}}</td>
 						<td>{{searchResult.status}}</td>
 						<td>{{searchResult.time}}</td>

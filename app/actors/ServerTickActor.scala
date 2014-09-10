@@ -19,18 +19,17 @@ class ServerTickActor extends Actor {
   val channels = context.system.actorSelection("/user/channels")
   val producer = context.system.actorSelection("/user/logEntryProducer")
 
-  val ticksPerClick: Int = 25
+  val ticksPerClick: Int = 50
 
   var cancellable: akka.actor.Cancellable = null
 
   val remainingTicks: AtomicInteger = new AtomicInteger(0)
 
   def receive = {
-    case Tick(current) => {
-      println("Tick Generated")
-      val currentTick = CurrentTime.generateTick;
-      channels ! currentTick;
-      producer ! currentTick;
+    case t: Tick => {
+      //      println("Tick Generated")
+      producer ! new Tick;
+      channels ! new Tick;
 
       if (0 == remainingTicks.decrementAndGet()) {
         self ! TickStop
@@ -40,7 +39,7 @@ class ServerTickActor extends Actor {
       println("Tick Start")
       remainingTicks.getAndAdd(ticksPerClick);
       if (cancellable == null) {
-        cancellable = context.system.scheduler.schedule(0 second, 1 second, self, CurrentTime.generateTick)
+        cancellable = context.system.scheduler.schedule(0 second, 1 second, self, new Tick)
       }
     }
 

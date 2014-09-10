@@ -1,8 +1,8 @@
 
 
-angular.module('realtimeSearch.controllers', []).controller(
-		'SearchCtrl',
+angular.module('realtimeSearch.controllers', [])
 
+.controller('SearchCtrl',
 		function($scope) {
 			$scope.searchResults = [];
 			$scope.searchString = "";
@@ -52,7 +52,8 @@ angular.module('realtimeSearch.controllers', []).controller(
 						$scope.safari = data.Safari;
 						$scope.chrome = data.Chrome;
 						$scope.firefox = data.Firefox;
-						$scope.other = data.IE + data.HttpClient;
+						$scope.ie = data.IE;
+						$scope.http = data.HttpClient;
 						$scope.highBrand = determineHighBrand($scope);
 
 						// device data
@@ -81,6 +82,24 @@ angular.module('realtimeSearch.controllers', []).controller(
 					$scope.searchFeed.close();
 				}
 			};
-		});
+		}
+)
+/*
+This directive allows us to pass a function in on an enter key to do what we want.
+ */
+.directive('ngEnter', function () {
+    return function (scope, element, attrs) {
+        element.bind("keydown keypress", function (event) {
+            if(event.which === 13) {
+                scope.$apply(function (){
+                    scope.$eval(attrs.ngEnter);
+                });
+ 
+                event.preventDefault();
+            }
+        });
+    };
+})
+;
 
 //

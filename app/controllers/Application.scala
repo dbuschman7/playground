@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc._
 import play.api.libs.concurrent.Akka
-import actors.MainSearchActor
+import actors.UserChannelsActor
 import akka.actor.{ Props }
 import scala.concurrent.duration._
 import play.api.Play.current

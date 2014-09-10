@@ -17,21 +17,47 @@
 package com.deftlabs.cursor.mongo;
 
 // Mongo
-import com.mongodb.DBObject;
-
 // Java
 import java.util.EventListener;
 
+import com.mongodb.DB;
+import com.mongodb.DBObject;
+
 /**
- * The tailable cursor doc listener interface. Used for the
- * event based notification model.
+ * The tailable cursor doc listener interface. Used for the event based notification model.
  */
-public interface TailableCursorDocListener extends EventListener {
+public abstract class TailableCursorDocListener implements EventListener {
+
+    private TailableCursor cursor;
+    private String id;
+
+    protected TailableCursorDocListener(String id) {
+        this.id = id;
+    }
+
+    public void start(DB db, TailableCursorOptions options) {
+
+        // make sure I am my own listener
+        options.setDocListener(this);
+        options.setThreadName(id);
+
+        // fire up the cursor
+        cursor = new TailableCursorImpl(db, options);
+        cursor.start();
+    }
+
+    public void stop() {
+        if (cursor == null)
+            return;
+
+        if (cursor.isRunning()) {
+            cursor.stop();
+        }
+    }
 
     /**
      * Called when a document is pulled from the tailable cursor.
      */
-    public void nextDoc(final DBObject pDoc);
+    public abstract void nextDoc(final DBObject pDoc);
 
 }
-

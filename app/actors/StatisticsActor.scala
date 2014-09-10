@@ -29,8 +29,9 @@ class StatisticsActor extends Actor {
   val data: Map[String, AtomicLong] = new HashMap;
 
   def receive = {
-    case LogEntry(data) => {
-      process(data, sender)
+    case log: LogEntry => {
+      println("Processing LogEntry")
+      process(log, sender)
       updateUserChannels
     }
     case TickStop => {
@@ -62,20 +63,14 @@ class StatisticsActor extends Actor {
     }
   }
 
-  private def process(logJson: JsValue, requestor: ActorRef) {
+  private def process(log: LogEntry, requestor: ActorRef) {
     //   println(s"process called $logJson")
-    //
-    val action = (logJson \ "method").as[String]
-    val device = (logJson \ "device").as[String]
-    val agent = (logJson \ "agent").as[String]
-    val responseTime = (logJson \ "time").as[Long]
 
-    //    println(s"Action = $action, Device = $device, Agent = $agent")
-    incValue(action)
-    incValue(device)
-    incValue(agent)
+    incValue(log.verb)
+    incValue(log.device)
+    incValue(log.agent)
     incValue("requests")
-    sumValue("totalResponseTime", responseTime)
+    sumValue("totalResponseTime", log.time)
 
   }
 

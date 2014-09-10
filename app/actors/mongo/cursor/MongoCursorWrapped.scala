@@ -13,56 +13,39 @@ import java.util.UUID
 import com.deftlabs.cursor.mongo.TailableCursorImpl
 import com.mongodb.DB
 import akka.actor.ActorSelection
+import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.DateTime
 
-class MongoCursorWrapped(id: UUID, sendMatch: ActorSelection, queryParams: Array[String]) extends TailableCursorDocListener {
-
-  var cursor: TailableCursor = _;
-
-  def start(db: DB, options: TailableCursorOptions) {
-
-    // make sure I am my own listener
-    options.setDocListener(this)
-    options.setThreadName(id.toString())
-
-    // fire up the cursor
-    cursor = new TailableCursorImpl(db, options)
-    cursor.start()
-  }
-
-  def stop() {
-    if (cursor == null) return
-
-    if (cursor.isRunning()) {
-      cursor.stop()
-    }
-  }
+class MongoCursorWrapped(id: UUID, sendMatch: ActorSelection, queryParams: Array[String]) extends TailableCursorDocListener(id.toString()) {
 
   def nextDoc(pDoc: DBObject) {
 
     // determine if row is a match
     val set = Set( //
-      pDoc.get("method").toString, //
+      pDoc.get("verb").toString, //
       pDoc.get("path").toString, //
       pDoc.get("status").toString, //
       pDoc.get("device").toString, //
       pDoc.get("agent").toString //
       )
 
+    // search all combinations of params and terms for any match
     val found: Boolean = queryParams.foldLeft(false)((acc, param) => acc | set.contains(param))
     if (!found) {
       return
     }
 
     // the answer is yes 
-    val data = Json.obj(
-      "ts" -> pDoc.get("ts").toString,
-      "time" -> pDoc.get("time").toString,
-      "method" -> pDoc.get("method").toString,
-      "path" -> pDoc.get("path").toString,
-      "status" -> pDoc.get("status").toString,
-      "device" -> pDoc.get("device").toString,
-      "agent" -> pDoc.get("agent").toString)
+    val data = new LogEntry(
+      new DateTime(pDoc.get("ts")),
+      pDoc.get("verb").toString,
+      pDoc.get("device").toString,
+      pDoc.get("agent").toString,
+      Integer.parseInt(pDoc.get("time").toString),
+      pDoc.get("path").toString,
+      Integer.parseInt(pDoc.get("status").toString) //
+      )
 
-    sendMatch ! new SearchMatch(LogEntry(data), List(id))
+    sendMatch ! new SearchMatch(data, List(id))
   }
 }
