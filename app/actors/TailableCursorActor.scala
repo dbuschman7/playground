@@ -35,12 +35,12 @@ import com.deftlabs.cursor.mongo.TailableCursorImpl
 import models.TickStop
 import scala.collection.mutable.Map
 import play.api.libs.json.Format
+import utils.MongoConfig
 
 class TailableCursorActor extends Actor {
 
   val channels = context.system.actorSelection("/user/channels")
 
-  var db: DB = _;
   var coll: DBCollection = _
   var options: TailableCursorOptions = new TailableCursorOptions("logs")
 
@@ -108,7 +108,7 @@ class TailableCursorActor extends Actor {
     val params = localSearch.split(" ")
     val cursor = new MongoCursorWrapped(id, channels, params)
     try {
-      cursor.start(db, options)
+      cursor.start(MongoConfig.db, options)
       cursors.put(id, cursor)
     } catch {
       case e: Exception => {
@@ -119,18 +119,12 @@ class TailableCursorActor extends Actor {
   }
 
   override def preStart() {
-    println("Mongo Connection - standing up ...")
-    val uri = new MongoClientURI("mongodb://cayman-vm:27017/playground")
-    val client = new MongoClient(uri);
-    db = client.getDB(uri.getDatabase());
 
     options.setDefaultCappedCollectionSize(100 * 100)
     options.setAssertIfNoCappedCollection(false)
 
-    val impl = new TailableCursorImpl(db, options) // causes the collection to be created
+    val impl = new TailableCursorImpl(MongoConfig.db, options) // causes the collection to be created
     coll = impl.getCollection()
-
-    println("Mongo Connection - ready!")
 
   }
 }
