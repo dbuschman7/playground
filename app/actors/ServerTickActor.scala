@@ -37,8 +37,8 @@ class ServerTickActor extends Actor {
     }
     case TickStart => {
       println("Tick Start")
-      remainingTicks.getAndAdd(ticksPerClick);
       if (cancellable == null) {
+        remainingTicks.getAndAdd(ticksPerClick);
         cancellable = context.system.scheduler.schedule(0 second, 1 second, self, new Tick)
       }
     }

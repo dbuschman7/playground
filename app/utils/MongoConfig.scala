@@ -12,11 +12,14 @@ object MongoConfig {
 
   var db: DB = _
   var store: MongoFileStore = _
-  var hostUrl: String = _
 
-  def init(hostPort: String, database: String) = {
-    hostUrl = s"${hostPort}/${database}"
-    db = standupMongoDB
+  def init(hostUrl: String) = {
+
+    println("Mongo Connection - standing up ...")
+    val uri = new MongoClientURI(hostUrl)
+    val client = new MongoClient(uri);
+    db = client.getDB(uri.getDatabase());
+    println("Mongo Connection - ready!")
 
     val config = MongoFileStoreConfig.builder().bucket("test") //
       .enableCompression(true) //
@@ -26,15 +29,6 @@ object MongoConfig {
       .build();
 
     store = new MongoFileStore(db, config)
-  }
-
-  private def standupMongoDB(): DB = {
-    println("Mongo Connection - standing up ...")
-    val uri = new MongoClientURI(hostUrl)
-    val client = new MongoClient(uri);
-    val db = client.getDB(uri.getDatabase());
-    println("Mongo Connection - ready!")
-    db
   }
 
 }
