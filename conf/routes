@@ -9,6 +9,8 @@ GET     /mongofs                    controllers.Application.mongofs
 GET     /cookbook                   controllers.Application.cookbook
 GET     /search/:searchString       controllers.Application.search(searchString)
 
+PUT 	/mongofs/upload				controllers.MongoFS.upload()
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET     /webjars/*file              controllers.WebJarAssets.at(file)

@@ -21,6 +21,7 @@ import scala.collection.mutable.ListBuffer
 import play.api.libs.json.Json
 import play.api.libs.concurrent.Execution.Implicits._
 import utils.MongoConfig
+import me.lightspeed7.mongofs.util.TimeMachine
 
 object MongoFS extends Controller {
 
@@ -62,7 +63,9 @@ object MongoFS extends Controller {
                   val processingStart: Long = Platform.currentTime
                   val duration = (processingStart - uploadStart) / 1000
 
-                  // do something with the file
+                  // only keep for 20 minutes
+                  val expiresAt = TimeMachine.now().forward(20).minutes().inTime();
+                  MongoConfig.store.expireFile(file, expiresAt)
 
                   val thisFile = File(file.getFilename(), file.getURL().getUrl().toString(), file.getStorageLength(), file.getContentType(), duration)
                   files += thisFile

@@ -51,7 +51,7 @@ object ApplicationBuild extends Build {
     "org.webjars" % "angularjs" % "1.2.23",
     "org.webjars" % "bootstrap" % "3.2.0",
     "org.webjars" % "d3js" % "3.4.11",
-    "me.lightspeed7" % "mongoFS" % "0.8.0"
+    "me.lightspeed7" % "mongoFS" % "0.8.1"
   )
 
   val playground = Project("playground", file("."))

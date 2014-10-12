@@ -16,14 +16,14 @@ object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
 
-    MongoConfig.init("mongodb://cayman-vm:27017", "playground")
-
-    // bring up akka actors
-    Akka.system.actorOf(Props[TailableCursorActor], "search")
-    Akka.system.actorOf(Props[LogEntryProducerActor], "logEntryProducer")
-    Akka.system.actorOf(Props[UserChannelsActor], "channels")
-    Akka.system.actorOf(Props[StatisticsActor], "statistics")
-    Akka.system.actorOf(Props[ServerTickActor], "serverTick")
+    //    MongoConfig.init("mongodb://cayman-vm:27017", "playground")
+    //
+    //    // bring up akka actors
+    //    Akka.system.actorOf(Props[TailableCursorActor], "search")
+    //    Akka.system.actorOf(Props[LogEntryProducerActor], "logEntryProducer")
+    //    Akka.system.actorOf(Props[UserChannelsActor], "channels")
+    //    Akka.system.actorOf(Props[StatisticsActor], "statistics")
+    //    Akka.system.actorOf(Props[ServerTickActor], "serverTick")
 
   }
 
