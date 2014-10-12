@@ -17,8 +17,8 @@ object ApplicationBuild extends Build {
     
   val appName         = "playground"
 
-  val branch = "git rev-parse --abbrev-ref HEAD".!!.trim
-  val commit = "git rev-parse --short HEAD".!!.trim
+  val branch = ""; // "git rev-parse --abbrev-ref HEAD".!!.trim
+  val commit = ""; // "git rev-parse --short HEAD".!!.trim
   val buildTime = (new java.text.SimpleDateFormat("yyyyMMdd-HHmmss")).format(new java.util.Date())
 
   val major = 1
